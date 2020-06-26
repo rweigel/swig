@@ -13,7 +13,7 @@ except AttributeError:
 
 print(numpy_include)
 # inplace extension module
-_inplace = Extension("_inplace2d",
+_inplace2d = Extension("_inplace2d",
                    ["inplace2d.i","inplace2d.cpp"],
                    include_dirs = [numpy_include],
                    )
@@ -23,5 +23,5 @@ setup(  name        = "inplace function",
         description = "inplace takes a double array and doubles each of its elements in-place.",
         author      = "Egor Zindy",
         version     = "1.0",
-        ext_modules = [_inplace]
+        ext_modules = [_inplace2d]
         )

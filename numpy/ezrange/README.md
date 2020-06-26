@@ -1,0 +1,1 @@
+Based on https://scipy-cookbook.readthedocs.io/items/SWIG_NumPy_examples.html

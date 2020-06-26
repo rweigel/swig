@@ -5,11 +5,5 @@ import code
 
 b = code.average(1., "a", [1., 2.])
 
-print(b)
-if False:
-    if b == 1.0:
-        print("Test passed")
-        sys.exit(0)
-    else:
-        print("Test failed")    
-        sys.exit(1)
+assert(b == (1., 2.))
+print("PASS")
