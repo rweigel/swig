@@ -95,9 +95,186 @@ except __builtin__.Exception:
         pass
     _newclass = 0
 
+class SwigPyIterator(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPyIterator, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, SwigPyIterator, name)
 
-def runner(x):
-    return _kameleon.runner(x)
+    def __init__(self, *args, **kwargs):
+        raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+    __swig_destroy__ = _kameleon.delete_SwigPyIterator
+    __del__ = lambda self: None
+
+    def value(self):
+        return _kameleon.SwigPyIterator_value(self)
+
+    def incr(self, n=1):
+        return _kameleon.SwigPyIterator_incr(self, n)
+
+    def decr(self, n=1):
+        return _kameleon.SwigPyIterator_decr(self, n)
+
+    def distance(self, x):
+        return _kameleon.SwigPyIterator_distance(self, x)
+
+    def equal(self, x):
+        return _kameleon.SwigPyIterator_equal(self, x)
+
+    def copy(self):
+        return _kameleon.SwigPyIterator_copy(self)
+
+    def next(self):
+        return _kameleon.SwigPyIterator_next(self)
+
+    def __next__(self):
+        return _kameleon.SwigPyIterator___next__(self)
+
+    def previous(self):
+        return _kameleon.SwigPyIterator_previous(self)
+
+    def advance(self, n):
+        return _kameleon.SwigPyIterator_advance(self, n)
+
+    def __eq__(self, x):
+        return _kameleon.SwigPyIterator___eq__(self, x)
+
+    def __ne__(self, x):
+        return _kameleon.SwigPyIterator___ne__(self, x)
+
+    def __iadd__(self, n):
+        return _kameleon.SwigPyIterator___iadd__(self, n)
+
+    def __isub__(self, n):
+        return _kameleon.SwigPyIterator___isub__(self, n)
+
+    def __add__(self, n):
+        return _kameleon.SwigPyIterator___add__(self, n)
+
+    def __sub__(self, *args):
+        return _kameleon.SwigPyIterator___sub__(self, *args)
+    def __iter__(self):
+        return self
+SwigPyIterator_swigregister = _kameleon.SwigPyIterator_swigregister
+SwigPyIterator_swigregister(SwigPyIterator)
+
+class FloatVector(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, FloatVector, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, FloatVector, name)
+    __repr__ = _swig_repr
+
+    def iterator(self):
+        return _kameleon.FloatVector_iterator(self)
+    def __iter__(self):
+        return self.iterator()
+
+    def __nonzero__(self):
+        return _kameleon.FloatVector___nonzero__(self)
+
+    def __bool__(self):
+        return _kameleon.FloatVector___bool__(self)
+
+    def __len__(self):
+        return _kameleon.FloatVector___len__(self)
+
+    def __getslice__(self, i, j):
+        return _kameleon.FloatVector___getslice__(self, i, j)
+
+    def __setslice__(self, *args):
+        return _kameleon.FloatVector___setslice__(self, *args)
+
+    def __delslice__(self, i, j):
+        return _kameleon.FloatVector___delslice__(self, i, j)
+
+    def __delitem__(self, *args):
+        return _kameleon.FloatVector___delitem__(self, *args)
+
+    def __getitem__(self, *args):
+        return _kameleon.FloatVector___getitem__(self, *args)
+
+    def __setitem__(self, *args):
+        return _kameleon.FloatVector___setitem__(self, *args)
+
+    def pop(self):
+        return _kameleon.FloatVector_pop(self)
+
+    def append(self, x):
+        return _kameleon.FloatVector_append(self, x)
+
+    def empty(self):
+        return _kameleon.FloatVector_empty(self)
+
+    def size(self):
+        return _kameleon.FloatVector_size(self)
+
+    def swap(self, v):
+        return _kameleon.FloatVector_swap(self, v)
+
+    def begin(self):
+        return _kameleon.FloatVector_begin(self)
+
+    def end(self):
+        return _kameleon.FloatVector_end(self)
+
+    def rbegin(self):
+        return _kameleon.FloatVector_rbegin(self)
+
+    def rend(self):
+        return _kameleon.FloatVector_rend(self)
+
+    def clear(self):
+        return _kameleon.FloatVector_clear(self)
+
+    def get_allocator(self):
+        return _kameleon.FloatVector_get_allocator(self)
+
+    def pop_back(self):
+        return _kameleon.FloatVector_pop_back(self)
+
+    def erase(self, *args):
+        return _kameleon.FloatVector_erase(self, *args)
+
+    def __init__(self, *args):
+        this = _kameleon.new_FloatVector(*args)
+        try:
+            self.this.append(this)
+        except __builtin__.Exception:
+            self.this = this
+
+    def push_back(self, x):
+        return _kameleon.FloatVector_push_back(self, x)
+
+    def front(self):
+        return _kameleon.FloatVector_front(self)
+
+    def back(self):
+        return _kameleon.FloatVector_back(self)
+
+    def assign(self, n, x):
+        return _kameleon.FloatVector_assign(self, n, x)
+
+    def resize(self, *args):
+        return _kameleon.FloatVector_resize(self, *args)
+
+    def insert(self, *args):
+        return _kameleon.FloatVector_insert(self, *args)
+
+    def reserve(self, n):
+        return _kameleon.FloatVector_reserve(self, n)
+
+    def capacity(self):
+        return _kameleon.FloatVector_capacity(self)
+    __swig_destroy__ = _kameleon.delete_FloatVector
+    __del__ = lambda self: None
+FloatVector_swigregister = _kameleon.FloatVector_swigregister
+FloatVector_swigregister(FloatVector)
+
+
+def runner(filename, N, v):
+    return _kameleon.runner(filename, N, v)
 runner = _kameleon.runner
 # This file is compatible with both classic and new-style classes.
 

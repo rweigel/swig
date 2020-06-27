@@ -58,7 +58,7 @@ test:
 kameleon_so:
 	make _kameleon.so
 
-_kameleon.so: kameleon_so.cpp $(KAMELEON) $(CDF)
+_kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CDF)
 	rm -f build/lib.linux-x86_64-2.7/_kameleon.so
 	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lcdf -lccmc \
 	-LCDF_LIB=${CDF_LIB} -L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}:${BOOST_ROOT}

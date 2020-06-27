@@ -9,13 +9,12 @@
 #include <ccmc/FileReader.h>
 #include <boost/numeric/ublas/matrix.hpp>
 
-int runner (int N) {
+int runner (char* filename1input, int N, std::vector<float> v) {
 
   ccmc::Kameleon kameleon1;
 
-  std::string filename1input;
-  filename1input = "3d__var_3_e20031120-070000-000.out.cdf";
-
+  //std::string filename1input;
+  //filename1input = "3d__var_3_e20031120-070000-000.out.cdf";
   
   clock_t start = clock();
 
