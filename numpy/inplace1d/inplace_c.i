@@ -1,8 +1,8 @@
-%module inplace
+%module inplace_c
 
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "inplace_cpp.h"
+    #include "inplace.h"
 %}
 
 %include "numpy.i"
@@ -12,4 +12,4 @@
 %}
 
 %apply (double* INPLACE_ARRAY1, int DIM1) {(double* invec, int n)}
-%include "inplace_cpp.h"
+%include "inplace.h"

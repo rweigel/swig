@@ -14,14 +14,14 @@ except AttributeError:
 print(numpy_include)
 # inplace extension module
 _inplace_cpp = Extension("_inplace_cpp",
-                   ["inplace_cpp.i","inplace_cpp.cpp"],
+                   ["inplace_cpp.i","inplace.cpp"],
                    include_dirs = [numpy_include],
                    )
 
 # NumyTypemapTests setup
-setup(  name        = "inplace function",
-        description = "inplace takes a double array and doubles each of its elements in-place.",
-        author      = "Egor Zindy",
-        version     = "1.0",
+setup(  name        = "",
+        description = "",
+        author      = "",
+        version     = "",
         ext_modules = [_inplace_cpp]
         )

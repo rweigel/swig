@@ -9,12 +9,12 @@ if _swig_python_version_info >= (2, 7, 0):
     def swig_import_helper():
         import importlib
         pkg = __name__.rpartition('.')[0]
-        mname = '.'.join((pkg, '_inplace')).lstrip('.')
+        mname = '.'.join((pkg, '_inplace_c')).lstrip('.')
         try:
             return importlib.import_module(mname)
         except ImportError:
-            return importlib.import_module('_inplace')
-    _inplace = swig_import_helper()
+            return importlib.import_module('_inplace_c')
+    _inplace_c = swig_import_helper()
     del swig_import_helper
 elif _swig_python_version_info >= (2, 6, 0):
     def swig_import_helper():
@@ -22,20 +22,20 @@ elif _swig_python_version_info >= (2, 6, 0):
         import imp
         fp = None
         try:
-            fp, pathname, description = imp.find_module('_inplace', [dirname(__file__)])
+            fp, pathname, description = imp.find_module('_inplace_c', [dirname(__file__)])
         except ImportError:
-            import _inplace
-            return _inplace
+            import _inplace_c
+            return _inplace_c
         try:
-            _mod = imp.load_module('_inplace', fp, pathname, description)
+            _mod = imp.load_module('_inplace_c', fp, pathname, description)
         finally:
             if fp is not None:
                 fp.close()
         return _mod
-    _inplace = swig_import_helper()
+    _inplace_c = swig_import_helper()
     del swig_import_helper
 else:
-    import _inplace
+    import _inplace_c
 del _swig_python_version_info
 
 try:
@@ -96,9 +96,9 @@ except __builtin__.Exception:
     _newclass = 0
 
 
-def inplace(invec):
-    return _inplace.inplace(invec)
-inplace = _inplace.inplace
+def inplacefn(invec):
+    return _inplace_c.inplacefn(invec)
+inplacefn = _inplace_c.inplacefn
 # This file is compatible with both classic and new-style classes.
 
 

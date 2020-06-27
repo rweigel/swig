@@ -12,15 +12,15 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 # inplace extension module
-_inplace = Extension("_inplace",
-                   ["inplace.i","inplace.c"],
+_inplace_c = Extension("_inplace_c",
+                   ["inplace_c.i","inplace.c"],
                    include_dirs = [numpy_include],
                    )
 
 # NumyTypemapTests setup
 setup(  name        = "inplace c function",
-        description = "inplace takes a double array and doubles each of its elements in-place.",
+        description = "",
         author      = "",
         version     = "",
-        ext_modules = [_inplace]
+        ext_modules = [_inplace_c]
         )

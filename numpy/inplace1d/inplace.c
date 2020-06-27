@@ -1,4 +1,4 @@
-void inplace(double *invec, int n)
+void inplacefn(double *invec, int n)
 {
     int i;
 
