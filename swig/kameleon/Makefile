@@ -28,14 +28,20 @@
 # Edit these three paths
 CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
 KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
-BOOST_ROOT=/home/osboxes/git/kameleon/deps/boost_1_67_0
+BOOST_ROOT=/home/osboxes/git/kameleon/deps/boost_1_54_0
 
 CDF_LIB=${CDF_DIR}/src/lib
 CDF_SO=$(CDF_LIB)/libcdf.so
 
 KAMELEON_INCLUDE=$(KAMELEON_PLUS)/src
 KAMELEON_LIB=$(KAMELEON_PLUS)/lib/ccmc
-KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so.6.1.0.0
+KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so
+
+PYTHON=python2
+OUTSO=build/lib.linux-x86_64-2.7/_kameleon.so
+
+PYTHON=python3
+OUTSO=build/lib.linux-x86_64-3.6/_kameleon.cpython-36m-x86_64-linux-gnu.so
 
 TESTFILE=3d__var_3_e20031120-070000-000.out.cdf 1000000
 
@@ -54,20 +60,20 @@ kameleon_so:
 
 _kameleon.so: kameleon_so.cpp $(KAMELEON) $(CDF)
 	rm -f build/lib.linux-x86_64-2.7/_kameleon.so
-	python setup.py build_ext --swig-opts=-c++ -lcdf -lccmc \
+	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lcdf -lccmc \
 	-LCDF_LIB=${CDF_LIB} -L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}:${BOOST_ROOT}
-	cp build/lib.linux-x86_64-2.7/_kameleon.so .
+	cp $(OUTSO) .
 
 test_so:
 	make testfile
-	LD_LIBRARY_PATH=${CDF_LIB}:${KAMELEON_LIB} python kameleon_test.py 
+	LD_LIBRARY_PATH=${CDF_LIB}:${KAMELEON_LIB} $(PYTHON) kameleon_test.py 
 
 kameleon_cl: kameleon_cl.cpp $(KAMELEON_INCLUDE) $(BOOST_ROOT)
 	g++ kameleon_cl.cpp -Wno-deprecated -o kameleon_cl \
 		-I${BOOST_ROOT} -I${KAMELEON_INCLUDE} \
 		-L$(KAMELEON_LIB) \
 		-lccmc \
-		-lboost_system -lboost_python -lpython2.7 -I/usr/include/python2.7
+		-lboost_system -lboost_python -lpython2.7
 # Last line above needed for Boost's wrap_python.hpp (based on error message without it)
 
 test_cl: kameleon_cl
@@ -80,7 +86,7 @@ testfile:
 clean:
 	- rm *.cdf
 	- rm kameleon_cl
-	- rm _kameleon.so
+	- rm *.so
 	- rm -f *~
 
 distclean:
