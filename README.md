@@ -1,2 +1,1 @@
-# swig
-SWIG Python experiments
+SWIG and ctypes Python experiments
