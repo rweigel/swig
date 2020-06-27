@@ -28,7 +28,6 @@
 # Edit these three paths
 CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
 KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
-BOOST_ROOT=/home/osboxes/git/kameleon/deps/boost_1_54_0
 
 CDF_LIB=${CDF_DIR}/src/lib
 CDF_SO=$(CDF_LIB)/libcdf.so
@@ -39,11 +38,13 @@ KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so
 
 PYTHON=python2
 OUTSO=build/lib.linux-x86_64-2.7/_kameleon.so
+PYTHON_INCLUDE=/usr/include/python2.7/
 
 PYTHON=python3
 OUTSO=build/lib.linux-x86_64-3.6/_kameleon.cpython-36m-x86_64-linux-gnu.so
+PYTHON_INCLUDE=/usr/include/python3.6m/
 
-TESTFILE=3d__var_3_e20031120-070000-000.out.cdf 1000000
+TESTFILE=3d__var_3_e20031120-070000-000.out.cdf
 
 SHELL := /bin/bash
 
@@ -59,22 +60,22 @@ kameleon_so:
 	make _kameleon.so
 
 _kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CDF)
-	rm -f build/lib.linux-x86_64-2.7/_kameleon.so
 	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lcdf -lccmc \
-	-LCDF_LIB=${CDF_LIB} -L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}:${BOOST_ROOT}
+	-LCDF_LIB=${CDF_LIB} -L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}
 	cp $(OUTSO) .
 
-test_so:
+test_so: _kameleon.so kameleon_test.py
 	make testfile
 	LD_LIBRARY_PATH=${CDF_LIB}:${KAMELEON_LIB} $(PYTHON) kameleon_test.py 
 
-kameleon_cl: kameleon_cl.cpp $(KAMELEON_INCLUDE) $(BOOST_ROOT)
+kameleon_cl: kameleon_cl.cpp $(KAMELEON_INCLUDE)
 	g++ kameleon_cl.cpp -Wno-deprecated -o kameleon_cl \
-		-I${BOOST_ROOT} -I${KAMELEON_INCLUDE} \
+		-I${KAMELEON_INCLUDE} \
 		-L$(KAMELEON_LIB) \
 		-lccmc \
+		-I$(PYTHON_INCLUDE) \
 		-lboost_system -lboost_python -lpython2.7
-# Last line above needed for Boost's wrap_python.hpp (based on error message without it)
+# Last two lines above needed for Boost's wrap_python.hpp (based on error message without it)
 
 test_cl: kameleon_cl
 	make testfile
@@ -85,6 +86,8 @@ testfile:
 
 clean:
 	- rm *.cdf
+	- rm kameleon_wrap.cpp
+	- rm kameleon.py
 	- rm kameleon_cl
 	- rm *.so
 	- rm -f *~
@@ -92,4 +95,4 @@ clean:
 distclean:
 	make clean
 	rm -rf build
-	- rm -f kameleon_cl 3d__var_3_e20031120-070000-000.out.cdf	
+#	- rm -f kameleon_cl 3d__var_3_e20031120-070000-000.out.cdf	

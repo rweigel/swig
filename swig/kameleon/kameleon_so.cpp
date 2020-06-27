@@ -7,9 +7,8 @@
 #include <cstdlib>
 #include <ccmc/Kameleon.h>
 #include <ccmc/FileReader.h>
-#include <boost/numeric/ublas/matrix.hpp>
 
-int runner (char* filename1input, int N, std::vector<float> v) {
+std::vector<float> runner (char* filename1input, std::vector<float> x, std::vector<float> y, std::vector<float> z, int N) {
 
   ccmc::Kameleon kameleon1;
 
@@ -18,13 +17,11 @@ int runner (char* filename1input, int N, std::vector<float> v) {
   
   clock_t start = clock();
 
-  boost::numeric::ublas::matrix<double> value1(N,1);
-
   long status1 = kameleon1.open(filename1input);
 
   if (status1 != ccmc::FileReader::OK) {
-    std::cout << "Could not open " << filename1input << " Exiting with code 1." << std::endl;
-    return 1;
+    //std::cout << "Could not open " << filename1input << " Exiting with code 1." << std::endl;
+    return x;
   }
   std::cout << filename1input << ": Opened." << std::endl;
 
@@ -33,7 +30,7 @@ int runner (char* filename1input, int N, std::vector<float> v) {
     kameleon1.loadVariable("p");
   } else {
     std::cout << "Variable does not exist. Exiting with code 1.";
-    return 1;
+    return x;
   }
   std::cout << filename1input << ": Loading variable finished." << std::endl;
 
@@ -43,17 +40,18 @@ int runner (char* filename1input, int N, std::vector<float> v) {
 
   for (int k = 0; k < N; k++)
     {
-      value1(k,0) = interpolator1->interpolate("p",  1.0, 1.0, 1.0);
+      //value1(k,0) = interpolator1->interpolate("p",  v[k], 1.0, 1.0);
+      x[k] = interpolator1->interpolate("p",  x[k], y[k], z[k]);
     }
   std::cout << filename1input << ": Interpolation finished." << std::endl;
   
   double duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
   std::cout << "Interpolation took " << (duration) << " s" << std::endl;
 
-  value1.clear();
+  //value1.clear();
   delete interpolator1;
   kameleon1.close();
 
-  return 0;
+  return x;
   
 }

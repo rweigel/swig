@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <ccmc/Kameleon.h>
 #include <ccmc/FileReader.h>
-#include <boost/numeric/ublas/matrix.hpp>
 
 int main (int argc, char * argv[]) {
 
@@ -19,7 +18,7 @@ int main (int argc, char * argv[]) {
 
   clock_t start = clock();
 
-  boost::numeric::ublas::matrix<double> value1(N,1);
+  std::vector<float> value1(N,0);
 
   long status1 = kameleon1.open(filename1input);
 
@@ -44,7 +43,8 @@ int main (int argc, char * argv[]) {
 
   for (int k = 0; k < N; k++)
     {
-      value1(k,0) = interpolator1->interpolate("p",  1.0, 1.0, 1.0);
+      //value1(k,0) = interpolator1->interpolate("p",  1.0, 1.0, 1.0);
+      value1[k] = interpolator1->interpolate("p",  1.0, 1.0, 1.0);
     }
   std::cout << filename1input << ": Interpolation finished." << std::endl;
   
@@ -52,7 +52,7 @@ int main (int argc, char * argv[]) {
   double duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
   std::cout << "Interpolation took " << (duration) << " s" << std::endl;
 
-  value1.clear();
+  //value1.clear();
   delete interpolator1;
   kameleon1.close();
 

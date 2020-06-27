@@ -2,6 +2,6 @@
 #define _kameleon
 
 #include <vector>
-int runner (char* filename, int N, std::vector<float> v);
+std::vector<float> runner (char* filename, std::vector<float> x, std::vector<float> y, std::vector<float> z, int N);
 
 #endif
