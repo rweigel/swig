@@ -1,31 +1,16 @@
-# Tested on Ubuntu 18.04
-
-# To compile and run code, you need libcdf.so and libccmc.so.6.1.0.0
-# See http://github.com/rweigel/kameleon for instructions on creating these libraries.
- 
-# Compare speed of interpolation between
-# (1) Interpolating N points using a command line program
-#     ./kameleon_cl FILENAME N
-# (2) Doing the same with a call from Python
-#     import _kameleon as kameleon
-#     b = kameleon.runner(N)
-# As expected, timing is similar.
-#
-# The next step is to write a program that allows
-# (3) V_interpolated = kameleon.runner(X, Y, Z, V)
-# instead of only
-# (4) for i in range(X)
-#       V_interpolated[i] = kameleon.runner(X[i], Y[i], Z[i], V[i])
-# Method (3) is expected to be about 3x faster than (4), which is currently used.
-# The 3x speed-up was determined by comparing the kameleon_cl code
-# here doing the equivalent interpolation with the Kameleon/Python
-# code as in
-# https://github.com/GaryQ-physics/magnetosphere/blob/master/misc/kameleon_kamodo_compare/kameleon_version_testScript.py
-
-# One way of doing this is with swig, but perhaps an easier way is with ctypes, e.g.,
-# https://stackoverflow.com/questions/5862915/passing-numpy-arrays-to-a-c-function-for-input-and-output
-
 # Edit these three paths
+# Tested on Ubuntu 18.04
+#
+# To compile and run code, you need libcdf.so and libccmc.so.6.1.0.0
+# compiled using http://github.com/rweigel/kameleon
+# 
+# After editing these variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE
+#
+# Execute
+#   make python2
+# or
+#   make python3
+
 CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
 KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
 
@@ -37,101 +22,52 @@ KAMELEON_LIB=$(KAMELEON_PLUS)/lib/ccmc
 KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so.6.1.0.0
 
 PYTHON=python2
-OUT_SO=build/lib.linux-x86_64-2.7/_kameleon.so
-PYTHON_INCLUDE=/usr/include/python2.7/
-
-#PYTHON=python3
-#OUT_SO=build/lib.linux-x86_64-3.6/_kameleon.cpython-36m-x86_64-linux-gnu.so
-#PYTHON_INCLUDE=/usr/include/python3.6m/
+PYTHON=python3
+ifeq ($(PYTHON),python2)
+	OUT_SO=build/lib.linux-x86_64-2.7/_kameleon.so
+	PYTHON_INCLUDE=/usr/include/python2.7/
+endif
+ifeq ($(PYTHON),python3)
+	OUT_SO=build/lib.linux-x86_64-3.6/_kameleon.cpython-36m-x86_64-linux-gnu.so
+	PYTHON_INCLUDE=/usr/include/python3.6m/
+endif
 
 TESTFILE=3d__var_3_e20031120-070000-000.out.cdf
 
 SHELL := /bin/bash
 
-K=/home/osboxes/kameleon
-
-elf:
-	cp $(CDF_SO) .
-	cp $(KAMELEON_SO) .
-
 all:
-	make kameleon_so
-	make kameleon_cl
+	make test_so PYTHON=python3
+	make test_so PYTHON=python2
+#	make kameleon_cl
 
 test:
-	make test_cl
-	make test_so
+	make test_so PYTHON=python3
+	make test_so PYTHON=python2
+#	make test_cl
 
-xldd:
-	LD_LIBRARY_PATH=${K}/lib/ccmc ldd _k*.so
+testfile:
+	- cd /tmp; wget -q -N \
+		http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/$(TESTFILE)
 
-
-kameleon_so:
-	make _kameleon.so
-
-y_ldd:
-	LD_LIBRARY_PATH=${k}/lib/ccmc ldd _k*.so
-
-
-# Compiles
-z_kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
-	make clean
-	$(PYTHON) setup.py build_ext --swig-opts=-c++ \
-		-lccmc -lboost_filesystem -lboost_system -L${K}/lib \
-		-L${K}/lib/ccmc -I${K}/include
-	cp $(OUT_SO) .
-	LD_LIBRARY_PATH=. ldd _k*.so
-	make z_test_so
-
-# Fail
-z_test_so: _k*.so kameleon_test.py
+test_so: $(OUT_SO) kameleonV_test.py
 	make testfile
-	cp kameleon.py ${K}/lib/ccmc
-	cp _k*.so ${K}/lib/ccmc
-	cp kameleon_test.py ${K}/lib/ccmc
-	cd ${K}/lib/ccmc; LD_LIBRARY_PATH=. ldd _*.so
-	cd ${K}/lib/ccmc; LD_LIBRARY_PATH=. $(PYTHON) kameleon_test.py 
-	rm ${K}/lib/ccmc/kameleon.py
-	rm ${K}/lib/ccmc/_k*.so
-	rm ${K}/lib/ccmc/kameleon_test.py 
+	$(PYTHON) kameleonV_test.py
 
-# Compiles but y_test_so fails with error:
-#Traceback (most recent call last):
-#  File "kameleon_test.py", line 1, in <module>
-#    import _kameleon as kameleon
-#ImportError: /home/osboxes/git/swig-and-ctypes/swig/kameleon/_kameleon.so: undefined symbol: _ZN4ccmc8Kameleon12loadVariableERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
-# Adding flag -lboost_filesystem
-# gives undefined symbol associated with doesVariablExist
-y_kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(K)
-	make clean
-	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lccmc --rpath=${K}/lib/ccmc \
-		-L${K}/lib/ccmc -I${K}/include
-	cp $(OUT_SO) .
-	ldd _k*.so
-	make y_test_so
-
-y_test_so: _kameleon.so kameleon_test.py
-	make testfile
-	$(PYTHON) kameleon_test.py 
-
-# Works for python 2 and 3
-_kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
+$(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
 	make clean
 	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lccmc --rpath=${KAMELEON_LIB} \
 		-L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}
-	ldd $(OUT_SO)
+	- mkdir -p lib/
 	cp $(CDF_SO) lib/
+	- cp $(KAMELEON_SO).orig $(KAMELEON_SO)
+	cp $(KAMELEON_SO) $(KAMELEON_SO).orig
 	./relativize_libs.sh $(KAMELEON_SO)
 	patchelf --set-rpath "\$$ORIGIN/lib" $(OUT_SO)
 	cp $(OUT_SO) .
-	ldd _*.so
+#	ldd _*.so
 	chmod 644 _*.so
 	chmod 644 lib/*.so
-
-# Works for python 2 and 3
-test_so: _kameleon.so kameleon_test.py
-	make testfile
-	$(PYTHON) kameleon_test.py
 
 kameleon_cl: kameleon_cl.cpp $(KAMELEON_INCLUDE)
 	g++ kameleon_cl.cpp -Wno-deprecated -o kameleon_cl \
@@ -146,17 +82,64 @@ test_cl: kameleon_cl
 	make testfile
 	LD_LIBRARY_PATH=$(KAMELEON_LIB) ./kameleon_cl $(TESTFILE) 1000000
 
-testfile:
-	- wget -q -N http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/$(TESTFILE)
+release:
+	- mkdir -p release/linux-x86_64-0.1.0
+	cp kameleonV_test.py kameleonV.py _*.so release/linux-x86_64-0.1.0
+	cp -r lib release/linux-x86_64-0.1.0
+	cd release; tar zcvf linux-x86_64-0.1.0.tgz linux-x86_64-0.1.0
 
 clean:
-	- rm -rf build/
-	- rm kameleon_wrap.cpp
-	- rm kameleon.py
-	- rm kameleon_cl
-	- rm *.so
-	- rm -f *~
+	-@rm -rf build/
+	-@rm -f kameleon_wrap.cpp
+	-@rm -f kameleon.py
+	-@rm -f kameleon_cl
+	-@rm -f *.so
+	-@rm -f *.pyc
+	-@rm -f *~
+	-@rm -rf __pycache__/
+	-@rm -rf lib/
+
 
 distclean:
 	make clean
-	- rm -f kameleon_cl 3d__var_3_e20031120-070000-000.out.cdf	
+	- rm -f 3d__var_3_e20031120-070000-000.out.cdf
+
+######################################################################
+# Failed attempts at using libraries and header files from a previously
+# installed Kameleon package from
+# https://ccmc.gsfc.nasa.gov/Kameleon/Quick_start.html instead of
+######################################################################
+X_KAMELEON=/home/osboxes/kameleon
+X_KAMELEON_INCLUDE=$(X_KAMELEON)/include
+X_KAMELEON_LIB=$(X_KAMELEON)/lib/ccmc
+X_KAMELEON_SO=$(X_KAMELEON_LIB)/libccmc.so.6.1.0.0
+
+# Compiles but execution of test python script fails with error:
+#Traceback (most recent call last):
+#  File "kameleonA_test.py", line 1, in <module>
+#    import _kameleon as kameleon
+#ImportError: /home/osboxes/git/swig-and-ctypes/swig/kameleon/_kameleon.so: undefined symbol: _ZN4ccmc8Kameleon12loadVariableERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+# Adding flag -lboost_filesystem
+# gives undefined symbol associated with doesVariablExist
+
+# I suspect this is due to a mis-match between the boost linked
+# against in the previously installed Kameleon package (1.59.0) and
+# the boost installed by apt-get (1.67.0 for Lubuntu 18.04). If so,
+# the fix is to compile and link to boost 1.59.0 (which take a very
+# long time)
+x_kameleon.so: kameleon_so.cpp kameleon.h kameleon.i $(X_KAMELEON)
+	make clean
+	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lccmc \
+		-L${X_KAMELEON_LIB} -I${X_KAMELEON_INCLUDE}
+	ldd $(OUT_SO)
+	mkdir -p lib/
+	- cp $(X_KAMELEON_SO).orig $(X_KAMELEON_SO)
+	cp $(X_KAMELEON_SO) $(X_KAMELEON_SO).orig
+	./relativize_libs.sh $(X_KAMELEON_SO)
+	patchelf --set-rpath "\$$ORIGIN/lib" $(OUT_SO)
+	cp $(OUT_SO) .
+	ldd _*.so
+	chmod 644 _*.so
+	chmod 644 lib/*.so
+	make testfile
+	$(PYTHON) kameleonV_test.py
