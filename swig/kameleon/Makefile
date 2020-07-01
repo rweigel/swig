@@ -1,15 +1,13 @@
-# Edit these three paths
-# Tested on Ubuntu 18.04
+# Tested on Lubuntu 18.04
 #
 # To compile and run code, you need libcdf.so and libccmc.so.6.1.0.0
 # compiled using http://github.com/rweigel/kameleon
 # 
-# After editing these variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE
-#
-# Execute
-#   make python2
+# After editing the variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE in this Makefile,
+# execute
+#   make PYTHON=python2
 # or
-#   make python3
+#   make PYTHON=python3
 
 CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
 KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
@@ -32,6 +30,7 @@ ifeq ($(PYTHON),python3)
 	PYTHON_INCLUDE=/usr/include/python3.6m/
 endif
 
+TMPDIR=/tmp
 TESTFILE=3d__var_3_e20031120-070000-000.out.cdf
 
 SHELL := /bin/bash
@@ -47,15 +46,20 @@ test:
 #	make test_cl
 
 testfile:
-	- cd /tmp; wget -q -N \
+	make $(TMPDIR)/$(TESTFILE)
+
+$(TMPDIR)/$(TESTFILE):
+	@- cd $(TMPDIR); wget -N \
 		http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/$(TESTFILE)
 
 test_so: $(OUT_SO) kameleonV_test.py
 	make testfile
 	$(PYTHON) kameleonV_test.py
 
+out_so:
+	make $(OUT_SO)
+
 $(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
-	make clean
 	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lccmc --rpath=${KAMELEON_LIB} \
 		-L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}
 	- mkdir -p lib/
@@ -65,7 +69,6 @@ $(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
 	./relativize_libs.sh $(KAMELEON_SO)
 	patchelf --set-rpath "\$$ORIGIN/lib" $(OUT_SO)
 	cp $(OUT_SO) .
-#	ldd _*.so
 	chmod 644 _*.so
 	chmod 644 lib/*.so
 
@@ -93,16 +96,15 @@ clean:
 	-@rm -f kameleon_wrap.cpp
 	-@rm -f kameleon.py
 	-@rm -f kameleon_cl
-	-@rm -f *.so
 	-@rm -f *.pyc
 	-@rm -f *~
 	-@rm -rf __pycache__/
-	-@rm -rf lib/
-
 
 distclean:
 	make clean
-	- rm -f 3d__var_3_e20031120-070000-000.out.cdf
+	-@rm -f *.so
+	-@rm -rf lib/
+	- rm -f $(TMPDIR)/3d__var_3_e20031120-070000-000.out.cdf
 
 ######################################################################
 # Failed attempts at using libraries and header files from a previously
