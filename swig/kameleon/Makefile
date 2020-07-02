@@ -9,8 +9,10 @@
 # After editing the variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE in this Makefile execute
 #   make
 
-CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
-KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
+KAMELEON_DIR=/home/osboxes/git
+
+CDF_DIR=$(KAMELEON_DIR)/kameleon/deps/cdf36_4-dist
+KAMELEON_PLUS=$(KAMELEON_DIR)/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
 
 CDF_LIB=${CDF_DIR}/src/lib
 CDF_SO=$(CDF_LIB)/libcdf.so

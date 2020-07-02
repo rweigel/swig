@@ -10,35 +10,34 @@ The Kamodo library also includes a Python wrapper to the Kameleon C++ interpolat
 
 # Installation and Use
 
-Download and unzip kameleonA.zip
-
-Download a test file to `/tmp`
+Tested on Python 2.7, 3.5, 3.6, 3.7, 3.8
 
 ```
-sys.path.append('/path/of/kameleonA')
-import _kameleon as kameleon
-x = [1., 2.]
-y = [1., 2.]
-z = [1., 2.]
-x = kameleonA.interpolate('/tmp/3d__var_3_e20031120-070000-000.out.cdf', x, y, z, len(x))
-print(x)
+git clone https://github.com/rweigel/kameleonV
+cd kameleonV; pip install --editable .
+wget -o /tmp/3d__var_3_e20031120-070000-000.out.cdf http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/3d__var_3_e20031120-070000-000.out.cdf
+python kameleonV_test.py
 ```
+
+See kameleonV_test.py for usage examples
 
 # Compiling
 
 ## Step 1
+
 ```
+cd /tmp
 git clone https://github.com/rweigel/kameleon
 ```
-Then read `README.md` for instructions
+Then read `kameleon/README.md` for instructions on dependencies
 
 ## Step 2
 
 ```
 git clone https://github.com/rweigel/swig-and-ctypes
+sudo apt install swig
 cd swig-and-ctypes
-# Edit paths in Makefile
-make test_so
+make KAMELEON_DIR=/tmp
 ```
 
 # Notes
@@ -47,3 +46,8 @@ Here SWIG was used, but perhaps this is easier donw with ctypes, e.g., https://s
 
 See end of the Makefile for description of why using the libraries from https://ccmc.gsfc.nasa.gov/Kameleon/Quick_start.html does not work.
 
+# TODO:
+
+1. Add function for field line tracing
+2. `libccmc.so` (created by Step 1 in Compiling section above) depends on libhdf5 and libpython2.7. These libraries are not needed. 
+3. Compile on OS-X
