@@ -22,7 +22,7 @@ KAMELEON_LIB=$(KAMELEON_PLUS)/lib/ccmc
 KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so.6.1.0.0
 
 CONDA=/home/osboxes/miniconda3
-CONDA_ACTIVATE=source $(CONDA)/etc/profile.d/conda.sh ; conda activate ; conda activate
+CONDA_ACTIVATE=source $(CONDA)/etc/profile.d/conda.sh ; conda activate
 
 SHELL=/bin/bash
 TMPDIR=/tmp
@@ -44,7 +44,7 @@ else
 	OUT_SO=build/lib.linux-x86_64-$(PYTHON_VER)/_kameleon.cpython-$(V)-x86_64-linux-gnu.so
 endif
 
-RELEASE=kameleonV-linux-x86_64-0.1.0
+RELEASE=kameleonV-0.1.0
 
 all:
 	make test_so PYTHON_VER=2.7
@@ -61,7 +61,7 @@ all:
 #	make kameleon_cl
 
 test:
-	make test_so
+	make test_so PYTHON_VER=$(PYTHON_VER)
 #	make test_cl
 
 testfile:
@@ -78,21 +78,11 @@ test_so: $(OUT_SO) kameleonV_test.py
 out_so:
 	make $(OUT_SO)
 
-$(CONDA):
-	echo "Select y for all questions"
-	cd /tmp; wget \
-		https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-	cd /tmp; bash Miniconda3-latest-Linux-x86_64.sh
-
-$(CONDA)/envs/$(PYTHON_VER): $(CONDA)
-	$(CONDA_ACTIVATE); \
-		$(CONDA)/bin/conda create -y --name $(PYTHON_VER) python=$(PYTHON_VER) numpy
-
-# Need to specify bash in order for conda activate to work.
-# Note that the extra activate is needed to ensure that the activate floats env to the front of PATH
+xy:
+	$(CONDA_ACTIVATE) $(PYTHON_VER); python --version
 
 $(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CONDA)/envs/$(PYTHON_VER)
-	$(CONDA_ACTIVATE);  
+	$(CONDA_ACTIVATE) $(PYTHON_VER); \
 	$(PYTHON) setup.py build_ext --swig-opts=-c++ \
 		-lccmc --rpath=${KAMELEON_LIB} \
 		-L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}
@@ -105,6 +95,16 @@ $(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CONDA)/envs/$(PYT
 	cp $(OUT_SO) .
 	chmod 644 _*.so
 	chmod 644 lib/*.so
+
+$(CONDA):
+	echo "Select y for all questions"
+	cd /tmp; wget \
+		https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	cd /tmp; bash Miniconda3-latest-Linux-x86_64.sh
+
+$(CONDA)/envs/$(PYTHON_VER): $(CONDA)
+	$(CONDA_ACTIVATE); \
+		$(CONDA)/bin/conda create -y --name $(PYTHON_VER) python=$(PYTHON_VER) numpy
 
 kameleon_cl: kameleon_cl.cpp $(KAMELEON_INCLUDE)
 	g++ kameleon_cl.cpp -Wno-deprecated -o kameleon_cl \
@@ -125,9 +125,10 @@ test_release:
 
 release:
 	echo $(RELEASE)
+	mkdir -p release
 	make $(RELEASE)
 
-$(RELEASE): _*.so
+$(RELEASE): _*.so release/
 	- mkdir -p release/$(RELEASE)
 	cp kameleonV_test.py kameleonV.py _*.so release/$(RELEASE)
 	cp -r lib release/$(RELEASE)

@@ -13,9 +13,11 @@ The Kamodo library also includes a Python wrapper to the Kameleon C++ interpolat
 Tested on Python 2.7, 3.5, 3.6, 3.7, 3.8
 
 ```
-git clone https://github.com/rweigel/kameleonV
-cd kameleonV; pip install --editable .
-wget -o /tmp/3d__var_3_e20031120-070000-000.out.cdf http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/3d__var_3_e20031120-070000-000.out.cdf
+cd tmp;
+wget http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/3d__var_3_e20031120-070000-000.out.cdf
+curl -O http://mag.gmu.edu/git-data/GaryQ-Physics/magnetosphere/kameleonV-0.1.0.tgz
+tar zxvf kameleonV-linux-0.1.0.tgz
+cd kameleonV-0.1.0
 python kameleonV_test.py
 ```
 
