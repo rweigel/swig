@@ -1,13 +1,13 @@
 # Tested on Lubuntu 18.04
 #
 # To compile and run code, you need libcdf.so and libccmc.so.6.1.0.0
-# compiled using http://github.com/rweigel/kameleon
+# compiled using http://github.com/rweigel/kameleon and
+#
+# SWIG is also needed. Install using
+#   sudo apt install swig
 # 
-# After editing the variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE in this Makefile,
-# execute
-#   make PYTHON=python2
-# or
-#   make PYTHON=python3
+# After editing the variables CDF_LIB, CDF_SO, and PYTHON_INCLUDE in this Makefile execute
+#   make
 
 CDF_DIR=/home/osboxes/git/kameleon/deps/cdf36_4-dist
 KAMELEON_PLUS=/home/osboxes/git/kameleon/ccmc-software/kameleon-plus/trunk/kameleon-plus-working
@@ -19,30 +19,47 @@ KAMELEON_INCLUDE=$(KAMELEON_PLUS)/src
 KAMELEON_LIB=$(KAMELEON_PLUS)/lib/ccmc
 KAMELEON_SO=$(KAMELEON_LIB)/libccmc.so.6.1.0.0
 
-PYTHON=python2
-PYTHON=python3
-ifeq ($(PYTHON),python2)
-	OUT_SO=build/lib.linux-x86_64-2.7/_kameleon.so
-	PYTHON_INCLUDE=/usr/include/python2.7/
-endif
-ifeq ($(PYTHON),python3)
-	OUT_SO=build/lib.linux-x86_64-3.6/_kameleon.cpython-36m-x86_64-linux-gnu.so
-	PYTHON_INCLUDE=/usr/include/python3.6m/
-endif
+CONDA=/home/osboxes/miniconda3
+CONDA_ACTIVATE=source $(CONDA)/etc/profile.d/conda.sh ; conda activate ; conda activate
 
+SHELL=/bin/bash
 TMPDIR=/tmp
 TESTFILE=3d__var_3_e20031120-070000-000.out.cdf
 
-SHELL := /bin/bash
+PYTHON_VER=3.7
+PYTHON=python
+# Determine name of output .so file
+ifeq ($(PYTHON_VER),2.7)
+	OUT_SO=build/lib.linux-x86_64-2.7/_kameleon.so
+else
+#	Remove dot in PYTHON_VER
+	V=$(subst .,,$(PYTHON_VER))m
+	ifeq ($(PYTHON_VER),3.8)
+		V=$(subst .,,$(PYTHON_VER))
+#	What determines if m appears after version, e.g.,
+#	 _kameleon.cpython-3.7m-... vs _kameleon.cpython-3.8m?
+	endif
+	OUT_SO=build/lib.linux-x86_64-$(PYTHON_VER)/_kameleon.cpython-$(V)-x86_64-linux-gnu.so
+endif
+
+RELEASE=kameleonV-linux-x86_64-0.1.0
 
 all:
-	make test_so PYTHON=python3
-	make test_so PYTHON=python2
+	make test_so PYTHON_VER=2.7
+	make test_so PYTHON_VER=3.5
+	make test_so PYTHON_VER=3.6
+	make test_so PYTHON_VER=3.7
+	make test_so PYTHON_VER=3.8
+	make release
+	make test_release PYTHON_VER=2.7
+	make test_release PYTHON_VER=3.5
+	make test_release PYTHON_VER=3.6
+	make test_release PYTHON_VER=3.7
+	make test_release PYTHON_VER=3.8
 #	make kameleon_cl
 
 test:
-	make test_so PYTHON=python3
-	make test_so PYTHON=python2
+	make test_so
 #	make test_cl
 
 testfile:
@@ -54,13 +71,28 @@ $(TMPDIR)/$(TESTFILE):
 
 test_so: $(OUT_SO) kameleonV_test.py
 	make testfile
-	$(PYTHON) kameleonV_test.py
+	$(CONDA_ACTIVATE) $(PYTHON_VER); $(PYTHON) kameleonV_test.py
 
 out_so:
 	make $(OUT_SO)
 
-$(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON)
-	$(PYTHON) setup.py build_ext --swig-opts=-c++ -lccmc --rpath=${KAMELEON_LIB} \
+$(CONDA):
+	echo "Select y for all questions"
+	cd /tmp; wget \
+		https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	cd /tmp; bash Miniconda3-latest-Linux-x86_64.sh
+
+$(CONDA)/envs/$(PYTHON_VER): $(CONDA)
+	$(CONDA_ACTIVATE); \
+		$(CONDA)/bin/conda create -y --name $(PYTHON_VER) python=$(PYTHON_VER) numpy
+
+# Need to specify bash in order for conda activate to work.
+# Note that the extra activate is needed to ensure that the activate floats env to the front of PATH
+
+$(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CONDA)/envs/$(PYTHON_VER)
+	$(CONDA_ACTIVATE);  
+	$(PYTHON) setup.py build_ext --swig-opts=-c++ \
+		-lccmc --rpath=${KAMELEON_LIB} \
 		-L${KAMELEON_LIB} -I${KAMELEON_INCLUDE}
 	- mkdir -p lib/
 	cp $(CDF_SO) lib/
@@ -85,11 +117,19 @@ test_cl: kameleon_cl
 	make testfile
 	LD_LIBRARY_PATH=$(KAMELEON_LIB) ./kameleon_cl $(TESTFILE) 1000000
 
+test_release:
+	cd release/$(RELEASE); \
+		$(CONDA_ACTIVATE) $(PYTHON_VER); $(PYTHON) kameleonV_test.py
+
 release:
-	- mkdir -p release/linux-x86_64-0.1.0
-	cp kameleonV_test.py kameleonV.py _*.so release/linux-x86_64-0.1.0
-	cp -r lib release/linux-x86_64-0.1.0
-	cd release; tar zcvf linux-x86_64-0.1.0.tgz linux-x86_64-0.1.0
+	echo $(RELEASE)
+	make $(RELEASE)
+
+$(RELEASE): _*.so
+	- mkdir -p release/$(RELEASE)
+	cp kameleonV_test.py kameleonV.py _*.so release/$(RELEASE)
+	cp -r lib release/$(RELEASE)
+	cd release; tar zcvf $(RELEASE).tgz $(RELEASE)
 
 clean:
 	-@rm -rf build/
