@@ -17,7 +17,7 @@ else:
 extra_compile_args = ' '.join(extra_compile_args)
 os.environ['CFLAGS'] = extra_compile_args
 
-setup(  name        = "",
+setup(  name        = "kameleonV",
         description = "",
         author      = "R.S. Weigel",
         version     = "0.0.1",

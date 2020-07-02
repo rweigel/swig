@@ -7,12 +7,13 @@ print("-------------------------------------------------------------------------
 print("Testing kameleonV in Python " + sys.version.replace("\n", ""))
 print("------------------------------------------------------------------------------")
 
-fname = '3d__var_3_e20031120-070000-000.out.cdf'
-fpath = '/tmp/3d__var_3_e20031120-070000-000.out.cdf'
+fname = '3d__var_1_e20120723-120000-000.out.cdf'
+fpath = '/tmp/' + fname
 
+url = 'http://mag.gmu.edu/git-data/bcurtiswx/Differences/data/Sean_Blake_081318_1/GM_CDF/'
 if not os.path.exists(fpath):
     print('Downloading ' + fname)
-    os.system('cd /tmp; curl -O http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/' + fname)
+    os.system('cd /tmp; wget ' + url + fname)
 
 x = [1., 2.]
 y = [1., 2.]

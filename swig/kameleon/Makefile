@@ -25,7 +25,9 @@ CONDA=/home/osboxes/miniconda3
 CONDA_ACTIVATE=source $(CONDA)/etc/profile.d/conda.sh ; conda activate
 
 SHELL=/bin/bash
+
 TMPDIR=/tmp
+TESTURL=http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/
 TESTFILE=3d__var_3_e20031120-070000-000.out.cdf
 
 PYTHON_VER=3.7
@@ -46,6 +48,7 @@ endif
 
 RELEASE=kameleonV-0.1.0
 
+# TODO: Use loop over Python versions
 all:
 	make test_so PYTHON_VER=2.7
 	make test_so PYTHON_VER=3.5
@@ -68,8 +71,7 @@ testfile:
 	make $(TMPDIR)/$(TESTFILE)
 
 $(TMPDIR)/$(TESTFILE):
-	@- cd $(TMPDIR); wget -N \
-		http://mag.gmu.edu/git-data/sblake/SCARR5_GM_IO2/IO2/$(TESTFILE)
+	- cd $(TMPDIR); wget -N $(TESTURL)$(TESTFILE)
 
 test_so: $(OUT_SO) kameleonV_test.py
 	make testfile
@@ -77,9 +79,6 @@ test_so: $(OUT_SO) kameleonV_test.py
 
 out_so:
 	make $(OUT_SO)
-
-xy:
-	$(CONDA_ACTIVATE) $(PYTHON_VER); python --version
 
 $(OUT_SO): kameleon_so.cpp kameleon.h kameleon.i $(KAMELEON) $(CONDA)/envs/$(PYTHON_VER)
 	$(CONDA_ACTIVATE) $(PYTHON_VER); \
